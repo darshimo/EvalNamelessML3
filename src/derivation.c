@@ -5,20 +5,19 @@
 
 //#define DEBUG
 
-/*
 Int *copyInt(Int *);
 Bool *copyBool(Bool *);
 Exp *copyExp(Exp *);
-Env *copyEnv(Env *);
+ValList *copyValList(ValList *);
 Val *copyVal(Val *);
-Var *copyVar(Var *);
-int cmpVar(Var *, Var *);
+Val *getVal(ValList *, int);
+
 #ifdef DEBUG
 void writeInt(Int *);
 void writeBool(Bool *);
 void writeClsr(Clsr *);
 void writeClsrRec(ClsrRec *);
-void writeEnv(Env *);
+void writeValList(ValList *);
 void writeVal(Val *);
 void writeFun(Fun *);
 void writeApp(App *);
@@ -126,7 +125,7 @@ void E_Int(Cncl *cncl_ob, int d){
 #ifdef DEBUG
     ind(d);
     printf("E-Int: ");
-    writeEnv(cncl_ob->u.eval_->env_);
+    writeValList(cncl_ob->u.eval_->vallist_);
     printf(" |- ");
     writeExp(cncl_ob->u.eval_->exp_);
     printf("\n");
@@ -150,7 +149,7 @@ void E_Bool(Cncl *cncl_ob, int d){
 #ifdef DEBUG
     ind(d);
     printf("E-Bool: ");
-    writeEnv(cncl_ob->u.eval_->env_);
+    writeValList(cncl_ob->u.eval_->vallist_);
     printf(" |- ");
     writeExp(cncl_ob->u.eval_->exp_);
     printf("\n");
@@ -175,38 +174,18 @@ void E_Var(Cncl *cncl_ob, int d){
 #ifdef DEBUG
     ind(d);
     printf("E-Var: ");
-    writeEnv(cncl_ob->u.eval_->env_);
+    writeValList(cncl_ob->u.eval_->vallist_);
     printf(" |- ");
     writeExp(cncl_ob->u.eval_->exp_);
     printf("\n");
 #endif
-    Env *eps = cncl_ob->u.eval_->env_->prev;
-    Exp *x = cncl_ob->u.eval_->exp_;
-    Var *y = cncl_ob->u.eval_->env_->var_;
+    cncl_ob->rule_type = E_VAR;
 
-    Asmp *asmp_ob;
-    Val *val_ob;
+    ValList *ups = cncl_ob->u.eval_->vallist_;
+    int n = cncl_ob->u.eval_->exp_->u.var_->n;
 
-    if(cmpVar(x->u.var_,y)==0){
-        cncl_ob->rule_type = E_VAR1;
-
-        asmp_ob = NULL;
-
-        val_ob = copyVal(cncl_ob->u.eval_->env_->val_);
-    }else{
-        cncl_ob->rule_type = E_VAR2;
-
-        asmp_ob = (Asmp *)malloc(sizeof(Asmp));
-        asmp_ob->cncl_ = (Cncl *)malloc(sizeof(Cncl));
-        asmp_ob->cncl_->cncl_type = EVAL;
-        asmp_ob->cncl_->u.eval_ = (Eval *)malloc(sizeof(Eval));
-        asmp_ob->cncl_->u.eval_->env_ = copyEnv(eps);
-        asmp_ob->cncl_->u.eval_->exp_ = copyExp(x);
-        derivation(asmp_ob->cncl_,d+1);
-        asmp_ob->next = NULL;
-
-        val_ob = copyVal(asmp_ob->cncl_->u.eval_->val_);
-    }
+    Asmp *asmp_ob = NULL;
+    Val *val_ob = copyVal(getVal(ups,n));
 
     cncl_ob->asmp_ = asmp_ob;
     cncl_ob->u.eval_->val_ = val_ob;
@@ -217,28 +196,28 @@ void E_Op(Cncl *cncl_ob, int d){
 #ifdef DEBUG
     ind(d);
     printf("E-Op: ");
-    writeEnv(cncl_ob->u.eval_->env_);
+    writeValList(cncl_ob->u.eval_->vallist_);
     printf(" |- ");
     writeExp(cncl_ob->u.eval_->exp_);
     printf("\n");
 #endif
-    Env *eps = cncl_ob->u.eval_->env_;
-    Exp *e1 = cncl_ob->u.eval_->exp_->u.op_->exp1_;
-    Exp *e2 = cncl_ob->u.eval_->exp_->u.op_->exp2_;
+    ValList *ups = cncl_ob->u.eval_->vallist_;
+    Exp *d1 = cncl_ob->u.eval_->exp_->u.op_->exp1_;
+    Exp *d2 = cncl_ob->u.eval_->exp_->u.op_->exp2_;
 
     Asmp *asmp_ob = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->cncl_ = (Cncl *)malloc(sizeof(Cncl));
     asmp_ob->cncl_->cncl_type = EVAL;
     asmp_ob->cncl_->u.eval_ = (Eval *)malloc(sizeof(Eval));
-    asmp_ob->cncl_->u.eval_->env_ = copyEnv(eps);
-    asmp_ob->cncl_->u.eval_->exp_ = copyExp(e1);
+    asmp_ob->cncl_->u.eval_->vallist_ = copyValList(ups);
+    asmp_ob->cncl_->u.eval_->exp_ = copyExp(d1);
     derivation(asmp_ob->cncl_,d+1);
     asmp_ob->next = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->next->cncl_ = (Cncl *)malloc(sizeof(Cncl));
     asmp_ob->next->cncl_->cncl_type = EVAL;
     asmp_ob->next->cncl_->u.eval_ = (Eval *)malloc(sizeof(Eval));
-    asmp_ob->next->cncl_->u.eval_->env_ = copyEnv(eps);
-    asmp_ob->next->cncl_->u.eval_->exp_ = copyExp(e2);
+    asmp_ob->next->cncl_->u.eval_->vallist_ = copyValList(ups);
+    asmp_ob->next->cncl_->u.eval_->exp_ = copyExp(d2);
     derivation(asmp_ob->next->cncl_,d+1);
     asmp_ob->next->next = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->next->next->cncl_ = (Cncl *)malloc(sizeof(Cncl));
@@ -276,35 +255,35 @@ void E_If(Cncl *cncl_ob, int d){
 #ifdef DEBUG
     ind(d);
     printf("E-If: ");
-    writeEnv(cncl_ob->u.eval_->env_);
+    writeValList(cncl_ob->u.eval_->vallist_);
     printf(" |- ");
     writeExp(cncl_ob->u.eval_->exp_);
     printf("\n");
 #endif
-    Env *eps = cncl_ob->u.eval_->env_;
-    Exp *e1 = cncl_ob->u.eval_->exp_->u.if_->exp1_;
-    Exp *e2 = cncl_ob->u.eval_->exp_->u.if_->exp2_;
-    Exp *e3 = cncl_ob->u.eval_->exp_->u.if_->exp3_;
+    ValList *ups = cncl_ob->u.eval_->vallist_;
+    Exp *d1 = cncl_ob->u.eval_->exp_->u.if_->exp1_;
+    Exp *d2 = cncl_ob->u.eval_->exp_->u.if_->exp2_;
+    Exp *d3 = cncl_ob->u.eval_->exp_->u.if_->exp3_;
 
     Asmp *asmp_ob = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->cncl_ = (Cncl *)malloc(sizeof(Cncl));
     asmp_ob->cncl_->cncl_type = EVAL;
     asmp_ob->cncl_->u.eval_ = (Eval *)malloc(sizeof(Eval));
-    asmp_ob->cncl_->u.eval_->env_ = copyEnv(eps);
-    asmp_ob->cncl_->u.eval_->exp_ = copyExp(e1);
+    asmp_ob->cncl_->u.eval_->vallist_ = copyValList(ups);
+    asmp_ob->cncl_->u.eval_->exp_ = copyExp(d1);
     derivation(asmp_ob->cncl_,d+1);
     asmp_ob->next = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->next->cncl_ = (Cncl *)malloc(sizeof(Cncl));
     asmp_ob->next->cncl_->cncl_type = EVAL;
     asmp_ob->next->cncl_->u.eval_ = (Eval *)malloc(sizeof(Eval));
-    asmp_ob->next->cncl_->u.eval_->env_ = copyEnv(eps);
+    asmp_ob->next->cncl_->u.eval_->vallist_ = copyValList(ups);
 
     if(asmp_ob->cncl_->u.eval_->val_->u.bool_->b){
     cncl_ob->rule_type = E_IFT;
-        asmp_ob->next->cncl_->u.eval_->exp_ = copyExp(e2);
+        asmp_ob->next->cncl_->u.eval_->exp_ = copyExp(d2);
     }else{
     cncl_ob->rule_type = E_IFF;
-        asmp_ob->next->cncl_->u.eval_->exp_ = copyExp(e3);
+        asmp_ob->next->cncl_->u.eval_->exp_ = copyExp(d3);
     }
     derivation(asmp_ob->next->cncl_,d+1);
     asmp_ob->next->next = NULL;
@@ -319,34 +298,32 @@ void E_Let(Cncl *cncl_ob, int d){
 #ifdef DEBUG
     ind(d);
     printf("E-Let: ");
-    writeEnv(cncl_ob->u.eval_->env_);
+    writeValList(cncl_ob->u.eval_->vallist_);
     printf(" |- ");
     writeExp(cncl_ob->u.eval_->exp_);
     printf("\n");
 #endif
     cncl_ob->rule_type = E_LET;
 
-    Env *eps = cncl_ob->u.eval_->env_;
-    Var *x = cncl_ob->u.eval_->exp_->u.let_->var_;
-    Exp *e1 = cncl_ob->u.eval_->exp_->u.let_->exp1_;
-    Exp *e2 = cncl_ob->u.eval_->exp_->u.let_->exp2_;
+    ValList *ups = cncl_ob->u.eval_->vallist_;
+    Exp *d1 = cncl_ob->u.eval_->exp_->u.let_->exp1_;
+    Exp *d2 = cncl_ob->u.eval_->exp_->u.let_->exp2_;
 
     Asmp *asmp_ob = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->cncl_ = (Cncl *)malloc(sizeof(Cncl));
     asmp_ob->cncl_->cncl_type = EVAL;
     asmp_ob->cncl_->u.eval_ = (Eval *)malloc(sizeof(Eval));
-    asmp_ob->cncl_->u.eval_->env_ = copyEnv(eps);
-    asmp_ob->cncl_->u.eval_->exp_ = copyExp(e1);
+    asmp_ob->cncl_->u.eval_->vallist_ = copyValList(ups);
+    asmp_ob->cncl_->u.eval_->exp_ = copyExp(d1);
     derivation(asmp_ob->cncl_,d+1);
     asmp_ob->next = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->next->cncl_ = (Cncl *)malloc(sizeof(Cncl));
     asmp_ob->next->cncl_->cncl_type = EVAL;
     asmp_ob->next->cncl_->u.eval_ = (Eval *)malloc(sizeof(Eval));
-    asmp_ob->next->cncl_->u.eval_->env_ = (Env *)malloc(sizeof(Env));
-    asmp_ob->next->cncl_->u.eval_->env_->prev = copyEnv(eps);
-    asmp_ob->next->cncl_->u.eval_->env_->var_ = copyVar(x);
-    asmp_ob->next->cncl_->u.eval_->env_->val_ = copyVal(asmp_ob->cncl_->u.eval_->val_);
-    asmp_ob->next->cncl_->u.eval_->exp_ = copyExp(e2);
+    asmp_ob->next->cncl_->u.eval_->vallist_ = (ValList *)malloc(sizeof(ValList));
+    asmp_ob->next->cncl_->u.eval_->vallist_->prev = copyValList(ups);
+    asmp_ob->next->cncl_->u.eval_->vallist_->val_ = copyVal(asmp_ob->cncl_->u.eval_->val_);
+    asmp_ob->next->cncl_->u.eval_->exp_ = copyExp(d2);
     derivation(asmp_ob->next->cncl_,d+1);
     asmp_ob->next->next = NULL;
 
@@ -360,24 +337,22 @@ void E_Fun(Cncl *cncl_ob, int d){
 #ifdef DEBUG
     ind(d);
     printf("E-Fun: ");
-    writeEnv(cncl_ob->u.eval_->env_);
+    writeValList(cncl_ob->u.eval_->vallist_);
     printf(" |- ");
     writeExp(cncl_ob->u.eval_->exp_);
     printf("\n");
 #endif
     cncl_ob->rule_type = E_FUN;
 
-    Env *eps = cncl_ob->u.eval_->env_;
-    Var *x = cncl_ob->u.eval_->exp_->u.fun_->arg;
-    Exp *e = cncl_ob->u.eval_->exp_->u.fun_->exp_;
+    ValList *ups = cncl_ob->u.eval_->vallist_;
+    Exp *d1 = cncl_ob->u.eval_->exp_->u.fun_->exp_;
 
     Asmp *asmp_ob = NULL;
     Val *val_ob = (Val *)malloc(sizeof(Val));
     val_ob->val_type = CLSR;
     val_ob->u.clsr_ = (Clsr *)malloc(sizeof(Clsr));
-    val_ob->u.clsr_->env_ = copyEnv(eps);
-    val_ob->u.clsr_->arg = copyVar(x);
-    val_ob->u.clsr_->exp_ = copyExp(e);
+    val_ob->u.clsr_->vallist_ = copyValList(ups);
+    val_ob->u.clsr_->exp_ = copyExp(d1);
 
     cncl_ob->asmp_ = asmp_ob;
     cncl_ob->u.eval_->val_ = val_ob;
@@ -388,28 +363,31 @@ void E_App(Cncl *cncl_ob, int d){
 #ifdef DEBUG
     ind(d);
     printf("E-App: ");
-    writeEnv(cncl_ob->u.eval_->env_);
+    writeValList(cncl_ob->u.eval_->vallist_);
     printf(" |- ");
     writeExp(cncl_ob->u.eval_->exp_);
     printf("\n");
 #endif
-    Env *eps = cncl_ob->u.eval_->env_;
-    Exp *e1 = cncl_ob->u.eval_->exp_->u.app_->exp1_;
-    Exp *e2 = cncl_ob->u.eval_->exp_->u.app_->exp2_;
+    ValList *ups = cncl_ob->u.eval_->vallist_;
+    Exp *d1 = cncl_ob->u.eval_->exp_->u.app_->exp1_;
+    Exp *d2 = cncl_ob->u.eval_->exp_->u.app_->exp2_;
+    ValList *ups2;
+    Val *w2;
+    Exp *d0;
 
     Asmp *asmp_ob = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->cncl_ = (Cncl *)malloc(sizeof(Cncl));
     asmp_ob->cncl_->cncl_type = EVAL;
     asmp_ob->cncl_->u.eval_ = (Eval *)malloc(sizeof(Eval));
-    asmp_ob->cncl_->u.eval_->env_ = copyEnv(eps);
-    asmp_ob->cncl_->u.eval_->exp_ = copyExp(e1);
+    asmp_ob->cncl_->u.eval_->vallist_ = copyValList(ups);
+    asmp_ob->cncl_->u.eval_->exp_ = copyExp(d1);
     derivation(asmp_ob->cncl_,d+1);
     asmp_ob->next = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->next->cncl_ = (Cncl *)malloc(sizeof(Cncl));
     asmp_ob->next->cncl_->cncl_type = EVAL;
     asmp_ob->next->cncl_->u.eval_ = (Eval *)malloc(sizeof(Eval));
-    asmp_ob->next->cncl_->u.eval_->env_ = copyEnv(eps);
-    asmp_ob->next->cncl_->u.eval_->exp_ = copyExp(e2);
+    asmp_ob->next->cncl_->u.eval_->vallist_ = copyValList(ups);
+    asmp_ob->next->cncl_->u.eval_->exp_ = copyExp(d2);
     derivation(asmp_ob->next->cncl_,d+1);
     asmp_ob->next->next = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->next->next->cncl_ = (Cncl *)malloc(sizeof(Cncl));
@@ -419,33 +397,27 @@ void E_App(Cncl *cncl_ob, int d){
     if(asmp_ob->cncl_->u.eval_->val_->val_type==CLSR){
         cncl_ob->rule_type = E_APP;
 
-        Env *eps2 = asmp_ob->cncl_->u.eval_->val_->u.clsr_->env_;
-        Var *x = asmp_ob->cncl_->u.eval_->val_->u.clsr_->arg;
-        Val *v2 = asmp_ob->next->cncl_->u.eval_->val_;
-        Exp *e0 = asmp_ob->cncl_->u.eval_->val_->u.clsr_->exp_;
+        ups2 = asmp_ob->cncl_->u.eval_->val_->u.clsr_->vallist_;
+        w2 = asmp_ob->next->cncl_->u.eval_->val_;
+        d0 = asmp_ob->cncl_->u.eval_->val_->u.clsr_->exp_;
 
-        asmp_ob->next->next->cncl_->u.eval_->env_ = (Env *)malloc(sizeof(Env));
-        asmp_ob->next->next->cncl_->u.eval_->env_->prev = copyEnv(eps2);
-        asmp_ob->next->next->cncl_->u.eval_->env_->var_ = copyVar(x);
-        asmp_ob->next->next->cncl_->u.eval_->env_->val_ = copyVal(v2);
-        asmp_ob->next->next->cncl_->u.eval_->exp_ = copyExp(e0);
+        asmp_ob->next->next->cncl_->u.eval_->vallist_ = (ValList *)malloc(sizeof(ValList));
+        asmp_ob->next->next->cncl_->u.eval_->vallist_->prev = copyValList(ups2);
+        asmp_ob->next->next->cncl_->u.eval_->vallist_->val_ = copyVal(w2);
+        asmp_ob->next->next->cncl_->u.eval_->exp_ = copyExp(d0);
     }else{
         cncl_ob->rule_type = E_APPREC;
 
-        Env *eps2 = asmp_ob->cncl_->u.eval_->val_->u.clsrrec_->env_;
-        Var *x = asmp_ob->cncl_->u.eval_->val_->u.clsrrec_->fun;
-        Var *y = asmp_ob->cncl_->u.eval_->val_->u.clsrrec_->arg;
-        Val *v2 = asmp_ob->next->cncl_->u.eval_->val_;
-        Exp *e0 = asmp_ob->cncl_->u.eval_->val_->u.clsrrec_->exp_;
+        ups2 = asmp_ob->cncl_->u.eval_->val_->u.clsrrec_->vallist_;
+        w2 = asmp_ob->next->cncl_->u.eval_->val_;
+        d0 = asmp_ob->cncl_->u.eval_->val_->u.clsrrec_->exp_;
 
-        asmp_ob->next->next->cncl_->u.eval_->env_ = (Env *)malloc(sizeof(Env));
-        asmp_ob->next->next->cncl_->u.eval_->env_->prev = (Env *)malloc(sizeof(Env));
-        asmp_ob->next->next->cncl_->u.eval_->env_->prev->prev = copyEnv(eps2);
-        asmp_ob->next->next->cncl_->u.eval_->env_->prev->var_ = copyVar(x);
-        asmp_ob->next->next->cncl_->u.eval_->env_->prev->val_ = copyVal(asmp_ob->cncl_->u.eval_->val_);
-        asmp_ob->next->next->cncl_->u.eval_->env_->var_ = copyVar(y);
-        asmp_ob->next->next->cncl_->u.eval_->env_->val_ = copyVal(v2);
-        asmp_ob->next->next->cncl_->u.eval_->exp_ = copyExp(e0);
+        asmp_ob->next->next->cncl_->u.eval_->vallist_ = (ValList *)malloc(sizeof(ValList));
+        asmp_ob->next->next->cncl_->u.eval_->vallist_->prev = (ValList *)malloc(sizeof(ValList));
+        asmp_ob->next->next->cncl_->u.eval_->vallist_->prev->prev = copyValList(ups2);
+        asmp_ob->next->next->cncl_->u.eval_->vallist_->prev->val_ = copyVal(asmp_ob->cncl_->u.eval_->val_);
+        asmp_ob->next->next->cncl_->u.eval_->vallist_->val_ = copyVal(w2);
+        asmp_ob->next->next->cncl_->u.eval_->exp_ = copyExp(d0);
     }
 
     derivation(asmp_ob->next->next->cncl_,d+1);
@@ -461,34 +433,29 @@ void E_LetRec(Cncl *cncl_ob, int d){
 #ifdef DEBUG
     ind(d);
     printf("E-LetRec: ");
-    writeEnv(cncl_ob->u.eval_->env_);
+    writeValList(cncl_ob->u.eval_->vallist_);
     printf(" |- ");
     writeExp(cncl_ob->u.eval_->exp_);
     printf("\n");
 #endif
     cncl_ob->rule_type = E_LETREC;
 
-    Env *eps = cncl_ob->u.eval_->env_;
-    Var *x = cncl_ob->u.eval_->exp_->u.letrec_->fun;
-    Var *y = cncl_ob->u.eval_->exp_->u.letrec_->arg;
-    Exp *e1 = cncl_ob->u.eval_->exp_->u.letrec_->exp1_;
-    Exp *e2 = cncl_ob->u.eval_->exp_->u.letrec_->exp2_;
+    ValList *ups = cncl_ob->u.eval_->vallist_;
+    Exp *d1 = cncl_ob->u.eval_->exp_->u.letrec_->exp1_;
+    Exp *d2 = cncl_ob->u.eval_->exp_->u.letrec_->exp2_;
 
     Asmp *asmp_ob = (Asmp *)malloc(sizeof(Asmp));
     asmp_ob->cncl_ = (Cncl *)malloc(sizeof(Cncl));
     asmp_ob->cncl_->cncl_type = EVAL;
     asmp_ob->cncl_->u.eval_ = (Eval *)malloc(sizeof(Eval));
-    asmp_ob->cncl_->u.eval_->env_ = (Env *)malloc(sizeof(Env));
-    asmp_ob->cncl_->u.eval_->env_->prev = copyEnv(eps);
-    asmp_ob->cncl_->u.eval_->env_->var_ = copyVar(x);
-    asmp_ob->cncl_->u.eval_->env_->val_ = (Val *)malloc(sizeof(Var));
-    asmp_ob->cncl_->u.eval_->env_->val_->val_type = CLSRREC;
-    asmp_ob->cncl_->u.eval_->env_->val_->u.clsrrec_ = (ClsrRec *)malloc(sizeof(ClsrRec));
-    asmp_ob->cncl_->u.eval_->env_->val_->u.clsrrec_->env_ = copyEnv(eps);
-    asmp_ob->cncl_->u.eval_->env_->val_->u.clsrrec_->fun = copyVar(x);
-    asmp_ob->cncl_->u.eval_->env_->val_->u.clsrrec_->arg = copyVar(y);
-    asmp_ob->cncl_->u.eval_->env_->val_->u.clsrrec_->exp_ = copyExp(e1);
-    asmp_ob->cncl_->u.eval_->exp_ = copyExp(e2);
+    asmp_ob->cncl_->u.eval_->vallist_ = (ValList *)malloc(sizeof(ValList));
+    asmp_ob->cncl_->u.eval_->vallist_->prev = copyValList(ups);
+    asmp_ob->cncl_->u.eval_->vallist_->val_ = (Val *)malloc(sizeof(Var));
+    asmp_ob->cncl_->u.eval_->vallist_->val_->val_type = CLSRREC;
+    asmp_ob->cncl_->u.eval_->vallist_->val_->u.clsrrec_ = (ClsrRec *)malloc(sizeof(ClsrRec));
+    asmp_ob->cncl_->u.eval_->vallist_->val_->u.clsrrec_->vallist_ = copyValList(ups);
+    asmp_ob->cncl_->u.eval_->vallist_->val_->u.clsrrec_->exp_ = copyExp(d1);
+    asmp_ob->cncl_->u.eval_->exp_ = copyExp(d2);
     derivation(asmp_ob->cncl_,d+1);
     asmp_ob->next = NULL;
 
@@ -519,4 +486,3 @@ void derivation(Cncl *cncl_ob, int d){
     }
     return;
 }
-*/

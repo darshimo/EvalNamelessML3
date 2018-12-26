@@ -1,4 +1,4 @@
-evalML3: obj/main.o obj/read.o obj/write.o obj/derivation.o obj/free.o obj/copy.o obj/error.o obj/debug.o obj/cmp.o obj/sub.o src/param.h
+evalNamelessML3: obj/main.o obj/read.o obj/write.o obj/derivation.o obj/free.o obj/copy.o obj/error.o obj/debug.o obj/cmp.o obj/sub.o src/param.h
 	gcc -o $@ obj/main.o obj/read.o obj/write.o obj/derivation.o obj/free.o obj/copy.o obj/error.o obj/debug.o obj/cmp.o obj/sub.o
 
 obj/main.o obj/read.o obj/write.o obj/derivation.o obj/free.o obj/copy.o obj/error.o obj/debug.o obj/cmp.o obj/sub.o : obj/%.o : src/%.c
@@ -6,4 +6,4 @@ obj/main.o obj/read.o obj/write.o obj/derivation.o obj/free.o obj/copy.o obj/err
 	gcc -c $< -o $@
 
 clean :
-	rm -r obj evalML3
+	rm -r obj evalNamelessML3

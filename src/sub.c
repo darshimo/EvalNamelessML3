@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "param.h"
 
+void error(char *);
+
 void ind(int d){
     int i;
     for(i=0;i<d;i++){
@@ -39,4 +41,11 @@ void writeRuleName(Cncl *cncl_ob){
     else if(tmp==B_TIMES)printf("B-Times");
     else printf("B-Lt");
     return;
+}
+
+Val *getVal(ValList *vl, int n){
+    if(vl==NULL)error("out of range about vallist");
+    if(n<=0)error("index error");
+    if(n==1)return vl->val_;
+    return getVal(vl->prev,n-1);
 }
