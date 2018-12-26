@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include "param.h"
 
-int cmpVar(Var *, Var *);
-
 void ind(int d){
     int i;
     for(i=0;i<d;i++){
@@ -30,8 +28,7 @@ void writeRuleName(Cncl *cncl_ob){
     else if(tmp==E_MINUS)printf("E-Minus");
     else if(tmp==E_TIMES)printf("E-Times");
     else if(tmp==E_LT)printf("E-Lt");
-    else if(tmp==E_VAR1)printf("E-Var1");
-    else if(tmp==E_VAR2)printf("E-Var2");
+    else if(tmp==E_VAR)printf("E-Var");
     else if(tmp==E_LET)printf("E-Let");
     else if(tmp==E_FUN)printf("E-Fun");
     else if(tmp==E_APP)printf("E-App");

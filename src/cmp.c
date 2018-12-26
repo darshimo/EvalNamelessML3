@@ -1,6 +1,8 @@
 #include <string.h>
 #include "param.h"
 
+/*
+
 int cmpInt(Int *,Int *);
 int cmpBool(Bool *,Bool *);
 int cmpClsr(Clsr *,Clsr *);
@@ -218,3 +220,4 @@ int cmpExp(Exp *ob1, Exp *ob2){
     if(ob1->exp_type==APP)return cmpApp(ob1->u.app_,ob2->u.app_);
     return cmpLetRec(ob1->u.letrec_,ob2->u.letrec_);
 }
+*/

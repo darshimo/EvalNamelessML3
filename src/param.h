@@ -7,8 +7,7 @@ typedef enum{//rule type
     E_MINUS,
     E_TIMES,
     E_LT,
-    E_VAR1,
-    E_VAR2,
+    E_VAR,
     E_LET,
     E_FUN,
     E_APP,
@@ -57,7 +56,7 @@ struct Bool_;
 struct Clsr_;
 struct ClsrRec_;
 
-struct Env_;
+struct ValList_;
 
 struct Val_;
 struct Var_;
@@ -89,23 +88,19 @@ typedef struct Bool_{
 
 
 typedef struct Clsr_{
-    struct Env_ *env_;
-    struct Var_ *arg;
+    struct ValList_ *vallist_;
     struct Exp_ *exp_;
 }Clsr;
 
 typedef struct ClsrRec_{
-    struct Env_ *env_;
-    struct Var_ *fun;
-    struct Var_ *arg;
+    struct ValList_ *vallist_;
     struct Exp_ *exp_;
 }ClsrRec;
 
-typedef struct Env_{
-    struct Var_ *var_;
+typedef struct ValList_{
     struct Val_ *val_;
-    struct Env_ *prev;
-}Env;
+    struct ValList_ *prev;
+}ValList;
 
 typedef struct Val_{
     ValType val_type;
@@ -118,7 +113,7 @@ typedef struct Val_{
 }Val;
 
 typedef struct Var_{
-    char *var_name;
+    int n;
 }Var;
 
 typedef struct Op_{
@@ -134,13 +129,11 @@ typedef struct If_{
 }If;
 
 typedef struct Let_{
-    struct Var_ *var_;
     struct Exp_ *exp1_;
     struct Exp_ *exp2_;
 }Let;
 
 typedef struct Fun_{
-    struct Var_ *arg;
     struct Exp_ *exp_;
 }Fun;
 
@@ -150,8 +143,6 @@ typedef struct App_{
 }App;
 
 typedef struct LetRec_{
-    struct Var_ *fun;
-    struct Var_ *arg;
     struct Exp_ *exp1_;
     struct Exp_ *exp2_;
 }LetRec;
@@ -184,7 +175,7 @@ typedef struct Infr_{
 }Infr;
 
 typedef struct Eval_{
-    struct Env_ *env_;
+    struct ValList_ *vallist_;
     struct Exp_ *exp_;
     struct Val_ *val_;
 }Eval;

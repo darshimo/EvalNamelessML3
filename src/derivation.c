@@ -5,6 +5,7 @@
 
 //#define DEBUG
 
+/*
 Int *copyInt(Int *);
 Bool *copyBool(Bool *);
 Exp *copyExp(Exp *);
@@ -518,3 +519,4 @@ void derivation(Cncl *cncl_ob, int d){
     }
     return;
 }
+*/

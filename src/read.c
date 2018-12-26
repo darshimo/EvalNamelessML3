@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -12,14 +12,12 @@ void ind(int d);
 
 
 void error(char *);
-Val *copyVal(Val *);
-Var *copyVar(Var *);
 
 Int *readInt(char *);
 Bool *readBool(char *);
 Clsr *readClsr(char *, char *);
 ClsrRec *readClsrRec(char *, char *);
-Env *readEnv(char *);
+ValList *readValList(char *);
 Val *readVal(char *);
 Var *readVar(char *);
 If *readIf(char *);
@@ -38,9 +36,9 @@ Int *readInt(char *str){
 #ifdef DEBUG
     printf("int : %s\n",str);
 #endif
-    Int *int_ob = (Int *)malloc(sizeof(Int));
-    int_ob->i = atoi(str);
-    return int_ob;
+    Int *ob = (Int *)malloc(sizeof(Int));
+    ob->i = atoi(str);
+    return ob;
 }
 
 
@@ -48,10 +46,10 @@ Bool *readBool(char *str){
 #ifdef DEBUG
     printf("bool : %s\n",str);
 #endif
-    Bool *bool_ob = (Bool *)malloc(sizeof(Bool));
-    if(str[0]=='t')bool_ob->b = 1;
-    else bool_ob->b = 0;
-    return bool_ob;
+    Bool *ob = (Bool *)malloc(sizeof(Bool));
+    if(str[0]=='t')ob->b = 1;
+    else ob->b = 0;
+    return ob;
 }
 
 
@@ -59,23 +57,14 @@ Clsr *readClsr(char *str1, char *str2){
 #ifdef DEBUG
     printf("clsr : (%s)[%s]\n",str1,str2);
 #endif
-    Clsr *clsr_ob = (Clsr *)malloc(sizeof(Clsr));
-    clsr_ob->env_ = readEnv(str1);
-    char *tmp;
-    str2 += strcspn(str2," ");
-    str2 += strspn(str2," ");
-    tmp = str2;
-    str2 += strcspn(str2," ");
-    str2 += strspn(str2," ");
-    str2 += strcspn(str2," ");
-    str2 += strspn(str2," ");
-    *(tmp+strcspn(tmp," "))='\0';
-
-    clsr_ob->arg = (Var *)malloc(sizeof(Var));
-    clsr_ob->arg->var_name = (char *)malloc(sizeof(char)*(strlen(tmp)+1));
-    strcpy(clsr_ob->arg->var_name,tmp);
-    clsr_ob->exp_ = readExp(str2);
-    return clsr_ob;
+    Clsr *ob = (Clsr *)malloc(sizeof(Clsr));
+    ob->vallist_ = readValList(str1);
+    for(int i=0;i<3;i++){
+        str2 += strcspn(str2," ");
+        str2 += strspn(str2," ");
+    }
+    ob->exp_ = readExp(str2);
+    return ob;
 }
 
 
@@ -83,45 +72,25 @@ ClsrRec *readClsrRec(char *str1, char *str2){
 #ifdef DEBUG
     printf("clserec : (%s)[%s]\n",str1,str2);
 #endif
-    ClsrRec *clsrrec_ob = (ClsrRec *)malloc(sizeof(ClsrRec));
-    clsrrec_ob->env_ = readEnv(str1);
-
+    ClsrRec *ob = (ClsrRec *)malloc(sizeof(ClsrRec));
+    ob->vallist_ = readValList(str1);
     char *tmp1, *tmp2;
-    str2 += strcspn(str2," ");
-    str2 += strspn(str2," ");
-    tmp1 = str2;
-    str2 += strcspn(str2," ");
-    str2 += strspn(str2," ");
-    str2 += strcspn(str2," ");
-    str2 += strspn(str2," ");
-    str2 += strcspn(str2," ");
-    str2 += strspn(str2," ");
-    tmp2 = str2;
-    str2 += strcspn(str2," ");
-    str2 += strspn(str2," ");
-    str2 += strcspn(str2," ");
-    str2 += strspn(str2," ");
-    *(tmp1+strcspn(tmp1," "))='\0';
-    *(tmp2+strcspn(tmp2," "))='\0';
+    for(int i=0;i<6;i++){
+        str2 += strcspn(str2," ");
+        str2 += strspn(str2," ");
+    }
+    ob->exp_ = readExp(str2);
 
-    clsrrec_ob->fun = (Var *)malloc(sizeof(Var));
-    clsrrec_ob->fun->var_name = (char *)malloc(sizeof(char)*(strlen(tmp1)+1));
-    strcpy(clsrrec_ob->fun->var_name,tmp1);
-    clsrrec_ob->arg = (Var *)malloc(sizeof(Var));
-    clsrrec_ob->arg->var_name = (char *)malloc(sizeof(char)*(strlen(tmp2)+1));
-    strcpy(clsrrec_ob->arg->var_name,tmp2);
-    clsrrec_ob->exp_ = readExp(str2);
-
-    return clsrrec_ob;
+    return ob;
 }
 
 
-Env *readEnv(char *str){
+ValList *readValList(char *str){
     if(*str=='\0')return NULL;
 
-    Env *env_ob = (Env *)malloc(sizeof(Env));
+    ValList *ob = (ValList *)malloc(sizeof(ValList));
 
-    Env *env_tmp = NULL;
+    ValList *vallist_tmp = NULL;
 
     char *tmp1 = str;
     str = NULL;
@@ -150,25 +119,17 @@ Env *readEnv(char *str){
         *str = '\0';
         str++;
         str+=strspn(str," ");
-        env_tmp = readEnv(tmp1);
+        vallist_tmp = readValList(tmp1);
     }
-    //char *str1 = strtok(str,"=");
-    //char *str2 = strtok(NULL,"=");
-    char *str1 = str;
-    char *str2 = strchr(str1,'=');
-    *str2 = '\0';
-    str2++;
-    str2+=strspn(str2," ");
 
 #ifdef DEBUG
-    printf("env : %s,%s\n",str1,str2);
+    printf("vallist : %s\n",str);
 #endif
 
-    env_ob->var_ = readVar(str1);
-    env_ob->val_ = readVal(str2);
-    env_ob->prev = env_tmp;
+    ob->val_ = readVal(str);
+    ob->prev = vallist_tmp;
 
-    return env_ob;
+    return ob;
 }
 
 
@@ -176,14 +137,14 @@ Val *readVal(char* str){
 #ifdef DEBUG
     printf("val : %s\n",str);
 #endif
-    Val *val_ob = (Val *)malloc(sizeof(Val));
+    Val *ob = (Val *)malloc(sizeof(Val));
 
     if(str[0]=='t'||str[0]=='f'){
-        val_ob->val_type = BOOL_;
-        val_ob->u.bool_ = readBool(str);
+        ob->val_type = BOOL_;
+        ob->u.bool_ = readBool(str);
     }else if(47<str[0]&&str[0]<58){
-        val_ob->val_type = INT_;
-        val_ob->u.int_ = readInt(str);
+        ob->val_type = INT_;
+        ob->u.int_ = readInt(str);
     }else if(str[0]=='('){
         char *str1, *str2;
         str++;
@@ -209,11 +170,11 @@ Val *readVal(char* str){
         str2 = str;
         *strrchr(str2,']') = '\0';
         if(str2[0]=='f'){
-            val_ob->val_type = CLSR;
-            val_ob->u.clsr_ = readClsr(str1,str2);
+            ob->val_type = CLSR;
+            ob->u.clsr_ = readClsr(str1,str2);
         }else if(str2[0]=='r'){
-            val_ob->val_type = CLSRREC;
-            val_ob->u.clsrrec_ = readClsrRec(str1,str2);
+            ob->val_type = CLSRREC;
+            ob->u.clsrrec_ = readClsrRec(str1,str2);
         }else{
             error("val is not correct\n");
         }
@@ -221,7 +182,7 @@ Val *readVal(char* str){
         error("val is not correct\n");
     }
 
-    return val_ob;
+    return ob;
 }
 
 
@@ -229,11 +190,11 @@ Var *readVar(char *str){
 #ifdef DEBUG
     printf("var : %s\n",str);
 #endif
-    Var *var_ob = (Var *)malloc(sizeof(Var));
+    Var *ob = (Var *)malloc(sizeof(Var));
+    str++;
     *(str+strcspn(str," "))='\0';
-    var_ob->var_name = (char *)malloc(sizeof(char)*(strlen(str)+1));
-    strcpy(var_ob->var_name,str);
-    return var_ob;
+    ob->n = atoi(str);
+    return ob;
 }
 
 
@@ -241,7 +202,7 @@ If *readIf(char *str){
 #ifdef DEBUG
     printf("if  : %s\n",str);
 #endif
-    If *if_ob = (If *)malloc(sizeof(If));
+    If *ob = (If *)malloc(sizeof(If));
 
     int count = 0;
     char *str1,*str2,*str3;
@@ -285,11 +246,11 @@ If *readIf(char *str){
     str+=strspn(str," ");
     str3 = str;
 
-    if_ob->exp1_ = readExp(str1);
-    if_ob->exp2_ = readExp(str2);
-    if_ob->exp3_ = readExp(str3);
+    ob->exp1_ = readExp(str1);
+    ob->exp2_ = readExp(str2);
+    ob->exp3_ = readExp(str3);
 
-    return if_ob;
+    return ob;
 }
 
 
@@ -297,10 +258,10 @@ Op *readOp(char* str){
 #ifdef DEBUG
     printf("op  : %s\n",str);
 #endif
-    Op *op_ob = (Op *)malloc(sizeof(Op));
+    Op *ob = (Op *)malloc(sizeof(Op));
 
     int count = 0;
-    op_ob->op_type = TIMES;
+    ob->op_type = TIMES;
     char *str1, *str2;
     str1 = str;
     str2 = NULL;
@@ -314,21 +275,21 @@ Op *readOp(char* str){
             if(strncmp(str-1," if ",4)*strncmp(str-1," let ",5)==0){
                 break;
             }else if(strncmp(str-1," + ",3)==0){
-                op_ob->op_type=PLUS;
+                ob->op_type=PLUS;
                 str2 = str;
             }else if(strncmp(str-1," - ",3)==0){
                 if(str==str1){
                     str++;
                     continue;
                 }
-                op_ob->op_type=MINUS;
+                ob->op_type=MINUS;
                 str2 = str;
             }else if(strncmp(str-1," < ",3)==0){
-                op_ob->op_type=LT;
+                ob->op_type=LT;
                 str2 = str;
                 break;
             }else if(strncmp(str-1," * ",3)==0){
-                if(op_ob->op_type==TIMES){
+                if(ob->op_type==TIMES){
                     str2 = str;
                 }
             }else if(*str=='\0'){
@@ -343,10 +304,10 @@ Op *readOp(char* str){
     *str2 = '\0';
     str2++;
     str2 += strspn(str2," ");
-    op_ob->exp1_ = readExp(str1);
-    op_ob->exp2_ = readExp(str2);
+    ob->exp1_ = readExp(str1);
+    ob->exp2_ = readExp(str2);
 
-    return op_ob;
+    return ob;
 }
 
 
@@ -354,17 +315,15 @@ Let *readLet(char *str){
 #ifdef DEBUG
     printf("let : %s\n",str);
 #endif
-    Let *let_ob = (Let *)malloc(sizeof(Let));
+    Let *ob = (Let *)malloc(sizeof(Let));
 
     char *str1, *str2;
 
-    str += strcspn(str," ");
-    str += strspn(str," ");
     str1 = str;
-    str1 += strcspn(str1," ");
-    str1 += strspn(str1," ");
-    str1 += strcspn(str1," ");
-    str1 += strspn(str1," ");
+    for(int i=0;i<3;i++){
+        str1 += strcspn(str1," ");
+        str1 += strspn(str1," ");
+    }
     str2 = str1;
 
     int count = 0;
@@ -388,11 +347,10 @@ Let *readLet(char *str){
     str2 += strcspn(str2," ");
     str2 += strspn(str2," ");
 
-    let_ob->var_ = readVar(str);
-    let_ob->exp1_ = readExp(str1);
-    let_ob->exp2_ = readExp(str2);
+    ob->exp1_ = readExp(str1);
+    ob->exp2_ = readExp(str2);
 
-    return let_ob;
+    return ob;
 }
 
 
@@ -400,23 +358,15 @@ Fun *readFun(char *str){
 #ifdef DEBUG
     printf("fun : %s\n",str);
 #endif
-    Fun *fun_ob = (Fun *)malloc(sizeof(Fun));
-    char *tmp;
-    str += strcspn(str," ");
-    str += strspn(str," ");
-    tmp = str;
-    str += strcspn(str," ");
-    str += strspn(str," ");
-    str += strcspn(str," ");
-    str += strspn(str," ");
-    *(tmp+strcspn(tmp," "))='\0';
+    Fun *ob = (Fun *)malloc(sizeof(Fun));
+    for(int i=0;i<3;i++){
+        str += strcspn(str," ");
+        str += strspn(str," ");
+    }
 
-    fun_ob->arg = (Var *)malloc(sizeof(Var));
-    fun_ob->arg->var_name = (char *)malloc(sizeof(char)*(strlen(tmp)+1));
-    strcpy(fun_ob->arg->var_name,tmp);
-    fun_ob->exp_ = readExp(str);
+    ob->exp_ = readExp(str);
 
-    return fun_ob;
+    return ob;
 }
 
 
@@ -424,7 +374,7 @@ App *readApp(char *str){
 #ifdef DEBUG
     printf("app : %s\n",str);
 #endif
-    App *app_ob = (App *)malloc(sizeof(App));
+    App *ob = (App *)malloc(sizeof(App));
     char *str1 = str;
     char *str2 = NULL;
     int count;
@@ -463,9 +413,9 @@ App *readApp(char *str){
 
     *(str2-1)='\0';
 
-    app_ob->exp1_ = readExp(str1);
-    app_ob->exp2_ = readExp(str2);
-    return app_ob;
+    ob->exp1_ = readExp(str1);
+    ob->exp2_ = readExp(str2);
+    return ob;
 }
 
 
@@ -473,58 +423,38 @@ LetRec *readLetRec(char *str){
 #ifdef DEBUG
     printf("letrec : %s\n",str);
 #endif
-    LetRec *letrec_ob = (LetRec *)malloc(sizeof(LetRec));
-    char *tmp1, *tmp2, *tmp3;
-    str += strcspn(str," ");
-    str += strspn(str," ");
-    str += strcspn(str," ");
-    str += strspn(str," ");
-    tmp1 = str;
-    str += strcspn(str," ");
-    str += strspn(str," ");
-    str += strcspn(str," ");
-    str += strspn(str," ");
-    str += strcspn(str," ");
-    str += strspn(str," ");
-    tmp2 = str;
-    str += strcspn(str," ");
-    str += strspn(str," ");
-    str += strcspn(str," ");
-    str += strspn(str," ");
-    tmp3 = str;
-    *(tmp1+strcspn(tmp1," "))='\0';
-    *(tmp2+strcspn(tmp2," "))='\0';
-
-    letrec_ob->fun = (Var *)malloc(sizeof(Var));
-    letrec_ob->fun->var_name = (char *)malloc(sizeof(char)*(strlen(tmp1)+1));
-    strcpy(letrec_ob->fun->var_name,tmp1);
-    letrec_ob->arg = (Var *)malloc(sizeof(Var));
-    letrec_ob->arg->var_name = (char *)malloc(sizeof(char)*(strlen(tmp2)+1));
-    strcpy(letrec_ob->arg->var_name,tmp2);
+    LetRec *ob = (LetRec *)malloc(sizeof(LetRec));
+    char *str1, *str2;
+    str1 = str;
+    for(int i=0;i<7;i++){
+        str1 += strcspn(str1," ");
+        str1 += strspn(str1," ");
+    }
+    str2 = str1;
 
     int count = 0;
     while(1){
-        str+=strcspn(str,"li");
-        if(strncmp(str-1," let ",5)==0){
+        str2+=strcspn(str2,"li");
+        if(strncmp(str2-1," let ",5)==0){
             count++;
-        }else if(strncmp(str-1," in ",4)==0){
+        }else if(strncmp(str2-1," in ",4)==0){
             if(count==0){
                 break;
             }
             count--;
-        }else if(*str=='\0'){
+        }else if(*str2=='\0'){
             error("4mismatch let and in.");
         }
-        str++;
+        str2++;
     }
-    *str = '\0';
-    str+=2;
-    str += strspn(str," ");
+    *str2 = '\0';
+    str2+=2;
+    str2 += strspn(str2," ");
 
-    letrec_ob->exp1_ = readExp(tmp3);
-    letrec_ob->exp2_ = readExp(str);
+    ob->exp1_ = readExp(str1);
+    ob->exp2_ = readExp(str2);
 
-    return letrec_ob;
+    return ob;
 }
 
 
@@ -561,23 +491,23 @@ Exp *readExp(char* str){
     //printf("exp : %s\n",str);
 #endif
 
-    Exp *exp_ob = (Exp *)malloc(sizeof(Exp));
+    Exp *ob = (Exp *)malloc(sizeof(Exp));
 
     if(strncmp(str,"let rec ",8)==0){//when exp is letrec
-        exp_ob->exp_type = LETREC;
-        exp_ob->u.letrec_ = readLetRec(str);
+        ob->exp_type = LETREC;
+        ob->u.letrec_ = readLetRec(str);
     }else if(strncmp(str,"let ",4)==0){//when exp is let
-        exp_ob->exp_type = LET;
-        exp_ob->u.let_ = readLet(str);
+        ob->exp_type = LET;
+        ob->u.let_ = readLet(str);
     }else if(strncmp(str,"fun ",4)==0){//when exp is fun
-        exp_ob->exp_type = FUN;
-        exp_ob->u.fun_ = readFun(str);
+        ob->exp_type = FUN;
+        ob->u.fun_ = readFun(str);
     }else if(strncmp(str,"if ",3)==0){//when exp is if
-        exp_ob->exp_type = IF;
-        exp_ob->u.if_ = readIf(str);
+        ob->exp_type = IF;
+        ob->u.if_ = readIf(str);
     }else if(strncmp(str,"true",4)*strncmp(str,"false",5)==0){//when exp is bool
-        exp_ob->exp_type = BOOL;
-        exp_ob->u.bool_ = readBool(str);
+        ob->exp_type = BOOL;
+        ob->u.bool_ = readBool(str);
     }else{
 
         char *tmp;
@@ -585,16 +515,16 @@ Exp *readExp(char* str){
         tmp += strspn(tmp,"0123456789");
         tmp += strspn(tmp," ");
         if(*tmp=='\0'){//when exp is int
-            exp_ob->exp_type = INT;
-            exp_ob->u.int_ = readInt(str);
+            ob->exp_type = INT;
+            ob->u.int_ = readInt(str);
         }else{
 
             tmp = str;
             tmp += strcspn(tmp," ()+-*<");
             tmp += strspn(tmp," ");
             if(*tmp=='\0'){//when exp is var
-                exp_ob->exp_type = VAR;
-                exp_ob->u.var_ = readVar(str);
+                ob->exp_type = VAR;
+                ob->u.var_ = readVar(str);
             }else{
 
                 tmp = str;
@@ -613,17 +543,17 @@ Exp *readExp(char* str){
                     tmp++;
                 }
                 if(*tmp=='\0'){//when exp is app
-                    exp_ob->exp_type = APP;
-                    exp_ob->u.app_ = readApp(str);
+                    ob->exp_type = APP;
+                    ob->u.app_ = readApp(str);
                 }else{//when exp is op
-                    exp_ob->exp_type = OP;
-                    exp_ob->u.op_ = readOp(str);
+                    ob->exp_type = OP;
+                    ob->u.op_ = readOp(str);
                 }
             }
         }
     }
 
-    return exp_ob;
+    return ob;
 }
 
 
@@ -631,7 +561,7 @@ Eval *readEval(char* str){
 #ifdef DEBUG
     printf("eval: %s\n",str);
 #endif
-    Eval *eval_ob = (Eval *)malloc(sizeof(Eval));
+    Eval *ob = (Eval *)malloc(sizeof(Eval));
 
     char *str1, *str2, *str3;
     str1 = str;
@@ -644,11 +574,11 @@ Eval *readEval(char* str){
     str3+=8;
     str3+=strspn(str3," ");
 
-    eval_ob->env_ = readEnv(str1);
-    eval_ob->exp_ = readExp(str2);
-    eval_ob->val_ = readVal(str3);
+    ob->vallist_ = readValList(str1);
+    ob->exp_ = readExp(str2);
+    ob->val_ = readVal(str3);
 
-    return eval_ob;
+    return ob;
 }
 
 
@@ -656,34 +586,34 @@ Infr *readInfr(char* str){
 #ifdef DEBUG
     printf("infr: %s\n",str);
 #endif
-    Infr *infr_ob = (Infr *)malloc(sizeof(Infr));
+    Infr *ob = (Infr *)malloc(sizeof(Infr));
 
     char *tp;
 
     tp = strtok(str," ");
-    infr_ob->int1 = atoi(tp);
+    ob->int1 = atoi(tp);
 
     tp = strtok(NULL," ");
     if(strcmp(tp,"plus")==0){
-        infr_ob->infr_type = PLUS;
+        ob->infr_type = PLUS;
     }else if(strcmp(tp,"minus")==0){
-        infr_ob->infr_type = MINUS;
+        ob->infr_type = MINUS;
     }else if(strcmp(tp,"times")==0){
-        infr_ob->infr_type = TIMES;
+        ob->infr_type = TIMES;
     }else{
-        infr_ob->infr_type = LT;
+        ob->infr_type = LT;
         tp = strtok(NULL," ");
     }
 
     tp = strtok(NULL," ");
-    infr_ob->int2 = atoi(tp);
+    ob->int2 = atoi(tp);
 
     tp = strtok(NULL," ");
 
     tp = strtok(NULL," ");
-    infr_ob->val_ = readVal(tp);
+    ob->val_ = readVal(tp);
 
-    return infr_ob;
+    return ob;
 }
 
 
@@ -691,16 +621,16 @@ Cncl *readCncl(char* str){
 #ifdef DEBUG
     printf("cncl: %s\n",str);
 #endif
-    Cncl* cncl_ob = (Cncl *)malloc(sizeof(Cncl));
+    Cncl* ob = (Cncl *)malloc(sizeof(Cncl));
 
     str += strspn(str," ");
     if(strstr(str," is ")==NULL){
-        cncl_ob->cncl_type = EVAL;
-        cncl_ob->u.eval_ = readEval(str);
+        ob->cncl_type = EVAL;
+        ob->u.eval_ = readEval(str);
     }else{
-        cncl_ob->cncl_type = INFR;
-        cncl_ob->u.infr_ = readInfr(str);
+        ob->cncl_type = INFR;
+        ob->u.infr_ = readInfr(str);
     }
 
-    return cncl_ob;
+    return ob;
 }

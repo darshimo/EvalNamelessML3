@@ -6,6 +6,7 @@
 #ifdef DEBUG
 #include <stdio.h>
 #endif
+/*
 
 Int *copyInt(Int *);
 Bool *copyBool(Bool *);
@@ -228,3 +229,4 @@ Exp *copyExp(Exp *sample){
 #endif
     return ob;
 }
+*/
