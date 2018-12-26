@@ -10,12 +10,11 @@ void debugCncl(Cncl *,int);
 void error(char*);
 Cncl* readCncl(char*);
 Val *copyVal(Val *);
+int cmpVal(Val*,Val*);
 /*
 void derivation(Cncl*, int);
-int cmpVal(Val*,Val*);
-void freeCncl(Cncl *);
 void writeCncl(Cncl *, int);
-void writeVal(Val *);
+void freeCncl(Cncl *);
 */
 
 
@@ -37,7 +36,6 @@ int main(int argc, char *argv[]){
     }else{
         result = copyVal(cncl_ob->u.eval_->val_);
     }
-
 
 #ifdef DEBUG
     printf("debug start.\n");
