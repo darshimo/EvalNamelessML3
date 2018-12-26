@@ -43,9 +43,9 @@ void writeRuleName(Cncl *cncl_ob){
     return;
 }
 
-Val *getVal(ValList *vl, int n){
-    if(vl==NULL)error("out of range about vallist");
+Val *getVal(ValList *ups, int n){
+    if(ups==NULL)error("out of range about vallist");
     if(n<=0)error("index error");
-    if(n==1)return vl->val_;
-    return getVal(vl->prev,n-1);
+    if(n==1)return ups->val_;
+    return getVal(ups->prev,n-1);
 }
