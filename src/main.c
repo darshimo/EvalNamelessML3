@@ -13,9 +13,7 @@ Val *copyVal(Val *);
 int cmpVal(Val*,Val*);
 void derivation(Cncl*, int);
 void writeCncl(Cncl *, int);
-/*
 void freeCncl(Cncl *);
-*/
 
 
 int main(int argc, char *argv[]){
@@ -72,7 +70,6 @@ int main(int argc, char *argv[]){
     printf("write complete.\n");
 #endif
 
-/*
 
 #ifdef DEBUG
     printf("free start.\n");
@@ -81,7 +78,6 @@ int main(int argc, char *argv[]){
 #ifdef DEBUG
     printf("free complete.\n\n");
 #endif
-*/
 
     return 0;
 }
