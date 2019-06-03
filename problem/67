@@ -1,0 +1,1 @@
+|- let . = 3 in let . = fun . -> #1 * #2 in let . = 5 in #2 4 evalto 12
