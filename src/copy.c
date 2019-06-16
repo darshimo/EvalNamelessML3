@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#define DEBUG
-#ifdef DEBUG
+#ifdef DBG_ALL
+#define DBG_CP
+#endif
+
+#ifdef DBG_CP
 #include <stdio.h>
 #endif
 
@@ -24,7 +27,7 @@ Exp *copyExp(Exp *);
 
 
 Int *copyInt(Int *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyInt start\n");
 #endif
     Int *ob = (Int *)malloc(sizeof(Int));
@@ -33,7 +36,7 @@ Int *copyInt(Int *sample){
 }
 
 Bool *copyBool(Bool *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyBool start\n");
 #endif
     Bool *ob = (Bool *)malloc(sizeof(Bool));
@@ -42,7 +45,7 @@ Bool *copyBool(Bool *sample){
 }
 
 Clsr *copyClsr(Clsr *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyClsr start\n");
 #endif
     Clsr *ob = (Clsr *)malloc(sizeof(Clsr));
@@ -52,7 +55,7 @@ Clsr *copyClsr(Clsr *sample){
 }
 
 ClsrRec *copyClsrRec(ClsrRec *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyClsrRec start\n");
 #endif
     ClsrRec *ob = (ClsrRec *)malloc(sizeof(ClsrRec));
@@ -63,7 +66,7 @@ ClsrRec *copyClsrRec(ClsrRec *sample){
 
 ValList *copyValList(ValList *sample){
     if(sample==NULL)return NULL;
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyValList start\n");
 #endif
     ValList *ob = (ValList *)malloc(sizeof(ValList));
@@ -73,7 +76,7 @@ ValList *copyValList(ValList *sample){
 }
 
 Val *copyVal(Val *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyVal start\n");
 #endif
     Val *ob = (Val *)malloc(sizeof(Val));
@@ -91,7 +94,7 @@ Val *copyVal(Val *sample){
 }
 
 Var *copyVar(Var *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyVar start\n");
 #endif
     Var *ob = (Var *)malloc(sizeof(Var));
@@ -100,7 +103,7 @@ Var *copyVar(Var *sample){
 };
 
 Op *copyOp(Op *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyOp start\n");
 #endif
     Op *ob = (Op *)malloc(sizeof(Op));
@@ -111,7 +114,7 @@ Op *copyOp(Op *sample){
 }
 
 If *copyIf(If *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyIf start\n");
 #endif
     If *ob = (If *)malloc(sizeof(If));
@@ -122,7 +125,7 @@ If *copyIf(If *sample){
 }
 
 Let *copyLet(Let *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyLet start\n");
 #endif
     Let *ob = (Let *)malloc(sizeof(Let));
@@ -132,7 +135,7 @@ Let *copyLet(Let *sample){
 }
 
 Fun *copyFun(Fun *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyFun start\n");
 #endif
     Fun *ob = (Fun *)malloc(sizeof(Fun));
@@ -141,7 +144,7 @@ Fun *copyFun(Fun *sample){
 }
 
 App *copyApp(App *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyApp start\n");
 #endif
     App *ob = (App *)malloc(sizeof(App));
@@ -151,7 +154,7 @@ App *copyApp(App *sample){
 }
 
 LetRec *copyLetRec(LetRec *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyLetRec start\n");
 #endif
     LetRec *ob = (LetRec *)malloc(sizeof(LetRec));
@@ -161,7 +164,7 @@ LetRec *copyLetRec(LetRec *sample){
 }
 
 Exp *copyExp(Exp *sample){
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyExp start\n");
 #endif
     Exp *ob = (Exp *)malloc(sizeof(Exp));
@@ -175,7 +178,7 @@ Exp *copyExp(Exp *sample){
     else if(ob->exp_type==FUN)ob->u.fun_ = copyFun(sample->u.fun_);
     else if(ob->exp_type==APP)ob->u.app_ = copyApp(sample->u.app_);
     else ob->u.letrec_ = copyLetRec(sample->u.letrec_);
-#ifdef DEBUG
+#ifdef DBG_CP
     printf("copyExp end\n");
 #endif
     return ob;

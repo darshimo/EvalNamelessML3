@@ -2,8 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-//#define DEBUG
-#ifdef DEBUG
+#ifdef DBG_ALL
+#define DBG_READ
+#define DBG_STRCT
+#define DBG_DRV
+#define DBG_WRITE
+#define DBG_CMP
+#define DBG_CP
+#define DBG_FREE
+#endif
+
+#ifdef DBG_STRCT
 void debugCncl(Cncl *,int);
 #endif
 
@@ -30,37 +39,48 @@ int main(int argc, char *argv[]){
     fgets(str,500,fp);
 
 
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("read start.\n");
 #endif
     Cncl *cncl_ob = readCncl(str);
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("read complete.\n\n");
 #endif
 
+
+#ifdef DBG_CP
+    printf("copy ans start.\n");
+#endif
     Val *result;
     if(cncl_ob->cncl_type == INFR){
         result = copyVal(cncl_ob->u.infr_->val_);
     }else{
         result = copyVal(cncl_ob->u.eval_->val_);
     }
+#ifdef DBG_CP
+    printf("copy ans complete.\n\n");
+#endif
 
-#ifdef DEBUG
+
+#ifdef DBG_STRCT
     printf("debug start.\n");
     debugCncl(cncl_ob,0);
     printf("debug complete.\n\n");
 #endif
 
 
-#ifdef DEBUG
+#ifdef DBG_DRV
     printf("derivation start.\n");
 #endif
     derivation(cncl_ob,0);
-#ifdef DEBUG
+#ifdef DBG_DRV
     printf("derivation complete.\n\n");
 #endif
 
 
+#ifdef DBG_CMP
+    printf("cmp ans start.\n");
+#endif
     if(cncl_ob->cncl_type == INFR){
         if(cmpVal(cncl_ob->u.infr_->val_,result)){
             error("result is not correct.\n");
@@ -70,22 +90,25 @@ int main(int argc, char *argv[]){
             error("result is not correct.\n");
         }
     }
+#ifdef DBG_CMP
+    printf("cmp ans complete.\n\n");
+#endif
 
 
-#ifdef DEBUG
+#ifdef DBG_WRITE
     printf("write start.\n");
 #endif
     writeCncl(cncl_ob,0);
-#ifdef DEBUG
-    printf("write complete.\n");
+#ifdef DBG_WRITE
+    printf("\nwrite complete.\n\n");
 #endif
 
 
-#ifdef DEBUG
+#ifdef DBG_FREE
     printf("free start.\n");
 #endif
     freeCncl(cncl_ob);
-#ifdef DEBUG
+#ifdef DBG_FREE
     printf("free complete.\n\n");
 #endif
 

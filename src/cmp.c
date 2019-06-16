@@ -19,8 +19,11 @@ int cmpExp(Exp *,Exp *);
 
 
 
-//#define DEBUG
-#ifdef DEBUG
+#ifdef DBG_ALL
+#define DBG_CMP
+#endif
+
+#ifdef DBG_CMP
 #include <stdio.h>
 void writeInt(Int *);
 void writeBool(Bool *);
@@ -40,7 +43,7 @@ void writeExp(Exp *);
 
 
 int cmpInt(Int *ob1, Int *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpInt: ");
     writeInt(ob1);
     printf(" : ");
@@ -51,7 +54,7 @@ int cmpInt(Int *ob1, Int *ob2){
 }
 
 int cmpBool(Bool *ob1, Bool *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpBool: ");
     writeBool(ob1);
     printf(" : ");
@@ -62,7 +65,7 @@ int cmpBool(Bool *ob1, Bool *ob2){
 }
 
 int cmpClsr(Clsr *ob1, Clsr *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpClsr: ");
     writeClsr(ob1);
     printf(" : ");
@@ -75,7 +78,7 @@ int cmpClsr(Clsr *ob1, Clsr *ob2){
 }
 
 int cmpClsrRec(ClsrRec *ob1, ClsrRec *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpClsrRec: ");
     writeClsrRec(ob1);
     printf(" : ");
@@ -88,7 +91,7 @@ int cmpClsrRec(ClsrRec *ob1, ClsrRec *ob2){
 }
 
 int cmpValList(ValList *ob1, ValList *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpValList: ");
     writeValList(ob1);
     printf(" : ");
@@ -110,7 +113,7 @@ int cmpVal(Val *ob1, Val *ob2){
 }
 
 int cmpVar(Var *ob1, Var *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpVar: ");
     writeVar(ob1);
     printf(" : ");
@@ -121,7 +124,7 @@ int cmpVar(Var *ob1, Var *ob2){
 }
 
 int cmpOp(Op *ob1, Op *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpOp: ");
     writeOp(ob1);
     printf(" : ");
@@ -135,7 +138,7 @@ int cmpOp(Op *ob1, Op *ob2){
 }
 
 int cmpIf(If *ob1, If *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpIf: ");
     writeIf(ob1);
     printf(" : ");
@@ -149,7 +152,7 @@ int cmpIf(If *ob1, If *ob2){
 }
 
 int cmpLet(Let *ob1, Let *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpLet: ");
     writeLet(ob1);
     printf(" : ");
@@ -162,7 +165,7 @@ int cmpLet(Let *ob1, Let *ob2){
 }
 
 int cmpFun(Fun *ob1, Fun *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpFun: ");
     writeFun(ob1);
     printf(" : ");
@@ -174,7 +177,7 @@ int cmpFun(Fun *ob1, Fun *ob2){
 }
 
 int cmpApp(App *ob1, App *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpApp: ");
     writeApp(ob1);
     printf(" : ");
@@ -187,7 +190,7 @@ int cmpApp(App *ob1, App *ob2){
 }
 
 int cmpLetRec(LetRec *ob1, LetRec *ob2){
-#ifdef DEBUG
+#ifdef DBG_CMP
     printf("cmpLetRec: ");
     writeLetRec(ob1);
     printf(" : ");

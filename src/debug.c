@@ -186,7 +186,6 @@ void debugCncl(Cncl *ob,int d){
     if(ob->cncl_type==INFR){
         debugInfr(ob->u.infr_,d+1);
     }else{
-        printf("hoge\n");
         debugEval(ob->u.eval_,d+1);
     }
     return;

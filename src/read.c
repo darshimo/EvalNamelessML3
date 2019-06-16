@@ -3,9 +3,11 @@
 #include <string.h>
 #include <ctype.h>
 
-//#define DEBUG
+#ifdef DBG_ALL
+#define DBG_READ
+#endif
 
-#ifdef DEBUG
+#ifdef DBG_READ
 #include <stdio.h>
 void ind(int d);
 #endif
@@ -33,7 +35,7 @@ Cncl *readCncl(char *);
 
 
 Int *readInt(char *str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("int : %s\n",str);
 #endif
     Int *ob = (Int *)malloc(sizeof(Int));
@@ -43,7 +45,7 @@ Int *readInt(char *str){
 
 
 Bool *readBool(char *str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("bool : %s\n",str);
 #endif
     Bool *ob = (Bool *)malloc(sizeof(Bool));
@@ -54,7 +56,7 @@ Bool *readBool(char *str){
 
 
 Clsr *readClsr(char *str1, char *str2){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("clsr : (%s)[%s]\n",str1,str2);
 #endif
     Clsr *ob = (Clsr *)malloc(sizeof(Clsr));
@@ -69,7 +71,7 @@ Clsr *readClsr(char *str1, char *str2){
 
 
 ClsrRec *readClsrRec(char *str1, char *str2){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("clserec : (%s)[%s]\n",str1,str2);
 #endif
     ClsrRec *ob = (ClsrRec *)malloc(sizeof(ClsrRec));
@@ -122,7 +124,7 @@ ValList *readValList(char *str){
         vallist_tmp = readValList(tmp1);
     }
 
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("vallist : %s\n",str);
 #endif
 
@@ -134,7 +136,7 @@ ValList *readValList(char *str){
 
 
 Val *readVal(char* str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("val : %s\n",str);
 #endif
     Val *ob = (Val *)malloc(sizeof(Val));
@@ -187,7 +189,7 @@ Val *readVal(char* str){
 
 
 Var *readVar(char *str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("var : %s\n",str);
 #endif
     Var *ob = (Var *)malloc(sizeof(Var));
@@ -199,7 +201,7 @@ Var *readVar(char *str){
 
 
 If *readIf(char *str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("if  : %s\n",str);
 #endif
     If *ob = (If *)malloc(sizeof(If));
@@ -255,7 +257,7 @@ If *readIf(char *str){
 
 
 Op *readOp(char* str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("op  : %s\n",str);
 #endif
     Op *ob = (Op *)malloc(sizeof(Op));
@@ -312,7 +314,7 @@ Op *readOp(char* str){
 
 
 Let *readLet(char *str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("let : %s\n",str);
 #endif
     Let *ob = (Let *)malloc(sizeof(Let));
@@ -355,7 +357,7 @@ Let *readLet(char *str){
 
 
 Fun *readFun(char *str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("fun : %s\n",str);
 #endif
     Fun *ob = (Fun *)malloc(sizeof(Fun));
@@ -371,7 +373,7 @@ Fun *readFun(char *str){
 
 
 App *readApp(char *str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("app : %s\n",str);
 #endif
     App *ob = (App *)malloc(sizeof(App));
@@ -420,7 +422,7 @@ App *readApp(char *str){
 
 
 LetRec *readLetRec(char *str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("letrec : %s\n",str);
 #endif
     LetRec *ob = (LetRec *)malloc(sizeof(LetRec));
@@ -487,7 +489,7 @@ Exp *readExp(char* str){
         }
     }
 
-#ifdef DEBUG
+#ifdef DBG_READ
     //printf("exp : %s\n",str);
 #endif
 
@@ -558,7 +560,7 @@ Exp *readExp(char* str){
 
 
 Eval *readEval(char* str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("eval: %s\n",str);
 #endif
     Eval *ob = (Eval *)malloc(sizeof(Eval));
@@ -583,7 +585,7 @@ Eval *readEval(char* str){
 
 
 Infr *readInfr(char* str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("infr: %s\n",str);
 #endif
     Infr *ob = (Infr *)malloc(sizeof(Infr));
@@ -618,7 +620,7 @@ Infr *readInfr(char* str){
 
 
 Cncl *readCncl(char* str){
-#ifdef DEBUG
+#ifdef DBG_READ
     printf("cncl: %s\n",str);
 #endif
     Cncl* ob = (Cncl *)malloc(sizeof(Cncl));

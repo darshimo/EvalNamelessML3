@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#define DEBUG
+#ifdef DBG_ALL
+#define DBG_DRV
+#endif
 
 Int *copyInt(Int *);
 Bool *copyBool(Bool *);
@@ -12,7 +14,7 @@ ValList *copyValList(ValList *);
 Val *copyVal(Val *);
 Val *getVal(ValList *, int);
 
-#ifdef DEBUG
+#ifdef DBG_DRV
 void writeInt(Int *);
 void writeBool(Bool *);
 void writeClsr(Clsr *);
@@ -32,7 +34,7 @@ void derivation(Cncl *, int);
 void B_Plus(Cncl *cncl_ob, int d){
     int i1 = cncl_ob->u.infr_->int1;
     int i2 = cncl_ob->u.infr_->int2;
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("B-Plus: ");
     printf("%d plus %d",i1,i2);
@@ -55,7 +57,7 @@ void B_Plus(Cncl *cncl_ob, int d){
 void B_Minus(Cncl *cncl_ob, int d){
     int i1 = cncl_ob->u.infr_->int1;
     int i2 = cncl_ob->u.infr_->int2;
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("B-Minus: ");
     printf("%d minus %d",i1,i2);
@@ -78,7 +80,7 @@ void B_Minus(Cncl *cncl_ob, int d){
 void B_Times(Cncl *cncl_ob, int d){
     int i1 = cncl_ob->u.infr_->int1;
     int i2 = cncl_ob->u.infr_->int2;
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("B-Times: ");
     printf("%d times %d",i1,i2);
@@ -101,7 +103,7 @@ void B_Times(Cncl *cncl_ob, int d){
 void B_Lt(Cncl *cncl_ob, int d){
     int i1 = cncl_ob->u.infr_->int1;
     int i2 = cncl_ob->u.infr_->int2;
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("B-Lt: ");
     printf("%d less than %d",i1,i2);
@@ -122,7 +124,7 @@ void B_Lt(Cncl *cncl_ob, int d){
 }
 
 void E_Int(Cncl *cncl_ob, int d){
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("E-Int: ");
     writeValList(cncl_ob->u.eval_->vallist_);
@@ -146,7 +148,7 @@ void E_Int(Cncl *cncl_ob, int d){
 }
 
 void E_Bool(Cncl *cncl_ob, int d){
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("E-Bool: ");
     writeValList(cncl_ob->u.eval_->vallist_);
@@ -171,7 +173,7 @@ void E_Bool(Cncl *cncl_ob, int d){
 
 
 void E_Var(Cncl *cncl_ob, int d){
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("E-Var: ");
     writeValList(cncl_ob->u.eval_->vallist_);
@@ -193,7 +195,7 @@ void E_Var(Cncl *cncl_ob, int d){
 }
 
 void E_Op(Cncl *cncl_ob, int d){
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("E-Op: ");
     writeValList(cncl_ob->u.eval_->vallist_);
@@ -252,7 +254,7 @@ void E_Op(Cncl *cncl_ob, int d){
 }
 
 void E_If(Cncl *cncl_ob, int d){
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("E-If: ");
     writeValList(cncl_ob->u.eval_->vallist_);
@@ -295,7 +297,7 @@ void E_If(Cncl *cncl_ob, int d){
 }
 
 void E_Let(Cncl *cncl_ob, int d){
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("E-Let: ");
     writeValList(cncl_ob->u.eval_->vallist_);
@@ -334,7 +336,7 @@ void E_Let(Cncl *cncl_ob, int d){
 }
 
 void E_Fun(Cncl *cncl_ob, int d){
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("E-Fun: ");
     writeValList(cncl_ob->u.eval_->vallist_);
@@ -360,7 +362,7 @@ void E_Fun(Cncl *cncl_ob, int d){
 }
 
 void E_App(Cncl *cncl_ob, int d){
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("E-App: ");
     writeValList(cncl_ob->u.eval_->vallist_);
@@ -430,7 +432,7 @@ void E_App(Cncl *cncl_ob, int d){
 }
 
 void E_LetRec(Cncl *cncl_ob, int d){
-#ifdef DEBUG
+#ifdef DBG_DRV
     ind(d);
     printf("E-LetRec: ");
     writeValList(cncl_ob->u.eval_->vallist_);
